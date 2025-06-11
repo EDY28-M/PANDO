@@ -13,6 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
 
     <link rel="stylesheet" href="css/style.css">
     <link rel="shortcut icon" href="favicon.ico">
@@ -21,25 +22,25 @@
 <body>
     <a href="#" class="back-to-top" aria-label="Volver arriba"><i class="fas fa-arrow-up"></i></a>
 
-    <nav class="main-nav" data-aos="fade-down" role="navigation" aria-label="Navegación principal">
-        <div class="container nav-container">
-            <a href="#hero" class="logo" aria-label="Inicio"><img src="images/logo.png" alt="LWP Logo" width="160" height="40"></a>
-            <ul class="nav-links">
-                <li><a href="#hero">Inicio</a></li>
-                <li><a href="#features">Características</a></li>
-                <li><a href="#team">Nosotros</a></li>
-                <li><a href="#portfolio">Portafolio</a></li>
-                <li><a href="#hosting">Hosting</a></li>
-                <li><a href="#contact">Contacto</a></li>
+    <nav class="main-nav fixed top-0 left-0 right-0 bg-white/80 backdrop-blur shadow-sm transition-shadow z-50" data-aos="fade-down" role="navigation" aria-label="Navegación principal">
+        <div class="nav-container max-w-7xl mx-auto flex items-center justify-between px-6 py-4">
+            <a href="#hero" class="logo flex items-center" aria-label="Inicio"><img src="images/logo.png" alt="LWP Logo" width="160" height="40" class="h-10 w-auto"></a>
+            <ul class="nav-links hidden md:flex space-x-8 font-medium text-gray-700">
+                <li><a href="#hero" class="hover:text-emerald-600">Inicio</a></li>
+                <li><a href="#features" class="hover:text-emerald-600">Características</a></li>
+                <li><a href="#team" class="hover:text-emerald-600">Nosotros</a></li>
+                <li><a href="#portfolio" class="hover:text-emerald-600">Portafolio</a></li>
+                <li><a href="#hosting" class="hover:text-emerald-600">Hosting</a></li>
+                <li><a href="#contact" class="hover:text-emerald-600">Contacto</a></li>
             </ul>
-            <a href="#contact" class="button button-primary nav-button">Cotiza Ahora</a>
-            <button class="hamburger" id="hamburger-menu" aria-label="Abrir menú"><i class="fas fa-bars"></i></button>
+            <a href="#contact" class="nav-button hidden md:inline-block bg-gradient-to-r from-emerald-600 to-emerald-500 text-white font-semibold py-2 px-5 rounded-full">Cotiza Ahora</a>
+            <button class="hamburger md:hidden text-emerald-600 text-2xl" id="hamburger-menu" aria-label="Abrir menú"><i class="fas fa-bars"></i></button>
         </div>
     </nav>
 
-    <header class="hero-section" id="hero">
-        <div class="hero-background">
-            <video autoplay muted loop playsinline poster="images/fondo.png">
+    <header class="hero-section relative" id="hero">
+        <div class="hero-background absolute inset-0 -z-10">
+            <video class="w-full h-full object-cover" autoplay muted loop playsinline poster="images/fondo.png">
                 <source src="videos/video-programando.mp4" type="video/mp4">
             </video>
             <div class="hero-overlay"></div>
@@ -49,7 +50,7 @@
             <div class="shape shape-2"></div>
             <div class="shape shape-3"></div>
         </div>
-        <div class="container hero-container">
+        <div class="hero-container max-w-7xl mx-auto grid md:grid-cols-2 gap-12 items-center px-6">
             <div class="hero-content" data-aos="fade-right">
                 <h1><span class="animated-text">Construye. Crece. Domina.</span></h1>
                 <p class="subtitle">Software a medida y soluciones web que transforman tu negocio. En LWP, convertimos
@@ -73,7 +74,7 @@
 
     <main>
         <section class="features-section" id="features">
-            <div class="container">
+            <div class="container max-w-7xl mx-auto px-6">
                 <div class="feature-content-wrapper">
                     <div class="feature-text-content" data-aos="fade-right">
                         <h2 class="section-title left-aligned">Tu Base para la Gestión de Proyectos Clásica y Ágil</h2>
@@ -109,7 +110,7 @@
         </section>
 
         <section class="process-section" id="process">
-            <div class="container">
+            <div class="container max-w-7xl mx-auto px-6">
                 <div class="feature-content-wrapper reverse">
                     <div class="feature-text-content" data-aos="fade-left">
                         <h2 class="section-title left-aligned">Optimiza tu Flujo de Trabajo</h2>
@@ -131,7 +132,7 @@
         </section>
 
         <section class="team-section" id="team">
-            <div class="container">
+            <div class="container max-w-7xl mx-auto px-6">
                 <h2 class="section-title" data-aos="fade-up">Conoce a Nuestro Equipo</h2>
                 <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">La fuerza motriz detrás de la
                     innovación. Profesionales dedicados a tu éxito.</p>
@@ -201,7 +202,7 @@
         </section>
 
         <section class="portfolio-section" id="portfolio">
-            <div class="container">
+            <div class="container max-w-7xl mx-auto px-6">
                 <h2 class="section-title" data-aos="fade-up">Nuestro Portafolio</h2>
                 <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Donde las ideas se convierten en
                     realidad.</p>
@@ -253,7 +254,7 @@
         </section>
 
         <section class="hosting-section" id="hosting">
-            <div class="container">
+            <div class="container max-w-7xl mx-auto px-6">
                 <h2 class="section-title" data-aos="fade-up">Planes de Hosting Flexibles</h2>
                 <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">Potencia, velocidad y seguridad para
                     tu proyecto. Sin complicaciones.</p>
@@ -303,7 +304,7 @@
         </section>
 
         <section class="contact-section" id="contact">
-            <div class="container">
+            <div class="container max-w-7xl mx-auto px-6">
                 <h2 class="section-title" data-aos="fade-up">Contáctanos</h2>
                 <p class="section-subtitle" data-aos="fade-up" data-aos-delay="100">¿Listo para transformar tu negocio?
                     Conversemos sobre tu proyecto.</p>
@@ -331,7 +332,7 @@
     </main>
 
     <footer>
-        <div class="container">
+        <div class="container max-w-7xl mx-auto px-6">
             <div class="footer-content">
                 <div class="footer-section about">
                     <a href="#hero" class="logo"><img src="images/logo.png" alt="LWP Logo" width="140" height="35" loading="lazy"></a>
