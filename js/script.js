@@ -50,18 +50,11 @@ $(document).ready(function() {
     // Botón de "Volver Arriba" (Back to Top)
     const backToTopButton = $('.back-to-top');
 
-    const mainNav = $('nav');
     $(window).on('scroll', function() {
-        const scroll = $(this).scrollTop();
-        if (scroll > 300) {
+        if ($(this).scrollTop() > 300) {
             backToTopButton.addClass('show');
         } else {
             backToTopButton.removeClass('show');
-        }
-        if (scroll > 50) {
-            mainNav.addClass('scrolled');
-        } else {
-            mainNav.removeClass('scrolled');
         }
     });
 
