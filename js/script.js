@@ -51,6 +51,12 @@ $(document).ready(function() {
     const backToTopButton = $('.back-to-top');
 
     $(window).on('scroll', function() {
+        const nav = $('nav');
+        if ($(this).scrollTop() > 50) {
+            nav.addClass('nav-scrolled');
+        } else {
+            nav.removeClass('nav-scrolled');
+        }
         if ($(this).scrollTop() > 300) {
             backToTopButton.addClass('show');
         } else {
