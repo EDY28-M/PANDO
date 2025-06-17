@@ -93,11 +93,25 @@ nav {
 }
 .nav-container { display: flex; justify-content: space-between; align-items: center; }
 .logo img { height: 45px; }
-.nav-links { display: flex; list-style: none; gap: 2.5rem; }
+.nav-links { display: flex; list-style: none; gap: 2.5rem; transition: right 0.3s ease; }
 .nav-links a { text-decoration: none; color: var(--dark-text); font-weight: 500; transition: color 0.3s ease; }
 .nav-links a:hover { color: var(--primary-green); }
 .nav-button { padding: 10px 28px; font-size: 0.9rem; }
 .hamburger { display: none; background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--primary-green); }
+
+/* Fondo oscuro para el menú móvil */
+.nav-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+}
+
+.nav-overlay.active {
+    display: block;
+}
 
 /* --- Sección Hero con Forma Curva --- */
 .hero-section {
@@ -242,9 +256,24 @@ footer { background: #222; color: #a9a9a9; padding: 5rem 0 2rem; }
     .section-title { font-size: 2.2rem; }
     .section-title.left-aligned, .section-subtitle.left-aligned { text-align: center; margin-left: auto; margin-right: auto; }
     .hero-content h1 { font-size: 2.8rem; }
-    .nav-links { display: none; position: absolute; top: 100%; left: 0; width: 100%; background: white; flex-direction: column; align-items: center; padding: 1rem 0; box-shadow: 0 10px 20px var(--shadow-light); }
-    .nav-links.active { display: flex; }
-    .nav-links li { padding: 0.5rem 0; }
+    .nav-links {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        height: 100vh;
+        width: 80%;
+        max-width: 300px;
+        background: var(--white);
+        flex-direction: column;
+        align-items: center;
+        padding-top: 4rem;
+        gap: 1.5rem;
+        box-shadow: -2px 0 20px var(--shadow-light);
+    }
+    .nav-links.active {
+        right: 0;
+    }
+    .nav-links li { width: 100%; text-align: center; }
     .hamburger { display: block; }
     .form-group { flex-direction: column; }
 }
