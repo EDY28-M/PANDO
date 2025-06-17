@@ -1,0 +1,30 @@
+/* Directivas base de Tailwind CSS */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Clases de componentes personalizadas y estilos base */
+@layer base {
+  html {
+    @apply scroll-smooth;
+  }
+  body {
+    @apply bg-light-bg text-body-text font-sans antialiased; /* Texto más suave */
+  }
+}
+
+@layer components {
+  /* Clase para crear un degradado en el texto */
+  .gradient-text {
+    @apply bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent;
+  }
+  
+  /* Botón para volver arriba */
+  .back-to-top {
+    @apply fixed bottom-5 right-5 bg-primary text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg opacity-0 invisible transition-all duration-300 z-50;
+    @apply hover:bg-primary-dark hover:scale-110;
+  }
+  .back-to-top.show {
+    @apply opacity-100 visible;
+  }
+}
