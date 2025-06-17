@@ -66,16 +66,24 @@ $(document).ready(function() {
     // Menú hamburguesa para móviles
     const hamburger = $('#hamburger-menu');
     const navLinks = $('.nav-links');
+    const navOverlay = $('#nav-overlay');
 
     hamburger.on('click', function() {
         navLinks.toggleClass('active');
+        navOverlay.toggleClass('active');
     });
-    
+
     // Cerrar menú móvil al hacer clic en un enlace
     navLinks.find('a').on('click', function() {
         if (navLinks.hasClass('active')) {
             navLinks.removeClass('active');
+            navOverlay.removeClass('active');
         }
+    });
+
+    navOverlay.on('click', function() {
+        navLinks.removeClass('active');
+        $(this).removeClass('active');
     });
 
     // Envío del formulario de contacto
