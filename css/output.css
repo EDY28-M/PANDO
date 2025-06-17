@@ -154,7 +154,7 @@ html,
   -o-tab-size: 4;
      tab-size: 4;
   /* 3 */
-  font-family: Inter, sans-serif;
+  font-family: Roboto, sans-serif;
   /* 4 */
   font-feature-settings: normal;
   /* 5 */
@@ -561,7 +561,7 @@ html {
 body {
   --tw-bg-opacity: 1;
   background-color: rgb(249 250 251 / var(--tw-bg-opacity, 1));
-  font-family: Inter, sans-serif;
+  font-family: Roboto, sans-serif;
   --tw-text-opacity: 1;
   color: rgb(55 65 81 / var(--tw-text-opacity, 1));
   -webkit-font-smoothing: antialiased;
@@ -1701,7 +1701,7 @@ body {
 }
 
 .font-sans {
-  font-family: Inter, sans-serif;
+  font-family: Roboto, sans-serif;
 }
 
 .text-2xl {
