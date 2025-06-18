@@ -109,4 +109,29 @@ $(document).ready(function() {
         }, 1500);
     });
 
+    // --- Dark Mode Toggle ---
+    const darkModeToggle = $('#dark-mode-toggle');
+    function setDarkMode(on) {
+        if(on) {
+            $('body').addClass('dark-mode');
+            localStorage.setItem('darkMode', 'on');
+            darkModeToggle.find('i').removeClass('fa-moon').addClass('fa-sun');
+            darkModeToggle.attr('aria-label', 'Desactivar modo oscuro');
+            darkModeToggle.attr('title', 'Modo claro');
+        } else {
+            $('body').removeClass('dark-mode');
+            localStorage.setItem('darkMode', 'off');
+            darkModeToggle.find('i').removeClass('fa-sun').addClass('fa-moon');
+            darkModeToggle.attr('aria-label', 'Activar modo oscuro');
+            darkModeToggle.attr('title', 'Modo oscuro');
+        }
+    }
+    // Cargar preferencia al iniciar
+    if(localStorage.getItem('darkMode') === 'on') setDarkMode(true);
+    darkModeToggle.on('click keypress', function(e) {
+        if(e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
+            setDarkMode(!$('body').hasClass('dark-mode'));
+        }
+    });
+
 });

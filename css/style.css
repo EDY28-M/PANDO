@@ -25,6 +25,82 @@ body {
     overflow-x: hidden;
     background-color: var(--white);
 }
+body.dark-mode {
+    background-color: #181a1b;
+    color: #f1f1f1;
+}
+body.dark-mode nav,
+body.dark-mode .footer-content,
+body.dark-mode .contact-section,
+body.dark-mode .team-section,
+body.dark-mode .portfolio-section,
+body.dark-mode .hosting-section {
+    background: #23272a !important;
+    color: #f1f1f1;
+}
+body.dark-mode .section-title,
+body.dark-mode .section-subtitle,
+body.dark-mode .team-member h3,
+body.dark-mode .plan-header h3,
+body.dark-mode .plan-price,
+body.dark-mode .footer-section h3 {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+body.dark-mode .button,
+body.dark-mode .button-primary,
+body.dark-mode .button-secondary {
+    background: linear-gradient(135deg, #2e8b57 0%, #3cb371 100%) !important;
+    color: #fff !important;
+    border: none !important;
+}
+body.dark-mode .button-secondary {
+    background: transparent !important;
+    color: #3cb371 !important;
+    border: 2px solid #3cb371 !important;
+}
+body.dark-mode .button-secondary:hover {
+    background: #3cb371 !important;
+    color: #fff !important;
+}
+body.dark-mode .plan-card {
+    background: #23272a !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .plan-card.featured {
+    background: linear-gradient(135deg, #2e8b57 0%, #3cb371 100%) !important;
+    color: #fff !important;
+}
+body.dark-mode .gallery-item {
+    background: #23272a !important;
+}
+body.dark-mode .gallery-overlay {
+    background: linear-gradient(transparent, rgba(30, 30, 30, 0.85));
+}
+body.dark-mode .contact-form {
+    background: #23272a !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .form-group input,
+body.dark-mode .contact-form textarea {
+    background: #181a1b !important;
+    color: #fff !important;
+    border-color: #3cb371 !important;
+}
+body.dark-mode .footer-bottom {
+    color: #aaa !important;
+    border-top: 1px solid #444;
+}
+body.dark-mode .process-section {
+    background: #23272a !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .process-section .section-title,
+body.dark-mode .process-section .section-subtitle,
+body.dark-mode .process-section p,
+body.dark-mode .process-section li {
+    color: #e0e0e0 !important;
+}
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
 section { padding: 100px 0; }
 
@@ -425,4 +501,233 @@ footer { background: #222; color: #a9a9a9; padding: 5rem 0 2rem; }
     .nav-links.active li:nth-child(6) { transition-delay: 0.3s; }
     .hamburger { display: block; }
     .form-group { flex-direction: column; }
+}
+
+/* Microinteracciones y animaciones sutiles */
+.button, .button-primary, .button-secondary {
+    transition: background 0.3s, color 0.3s, transform 0.2s, box-shadow 0.2s;
+}
+.button:hover, .button-primary:hover, .button-secondary:hover {
+    transform: translateY(-2px) scale(1.04);
+    box-shadow: 0 6px 18px rgba(46,139,87,0.18);
+    filter: brightness(1.1);
+}
+.section-title, .section-subtitle {
+    transition: color 0.3s, -webkit-text-fill-color 0.3s;
+}
+
+/* Accesibilidad: Mejor contraste para enlaces y botones */
+a, .button, .button-primary, .button-secondary {
+    outline: none;
+}
+a:focus, .button:focus, .button-primary:focus, .button-secondary:focus {
+    outline: 2px solid #2e8b57;
+    outline-offset: 2px;
+}
+
+body.dark-mode,
+body.dark-mode p,
+body.dark-mode span,
+body.dark-mode li,
+body.dark-mode label,
+body.dark-mode .team-bio,
+body.dark-mode .plan-features li,
+body.dark-mode .feature-item-text p,
+body.dark-mode .section-subtitle,
+body.dark-mode .footer-section ul li a,
+body.dark-mode .footer-section.about p {
+    color: #e0e0e0 !important;
+}
+body.dark-mode .section-title,
+body.dark-mode .section-title.left-aligned,
+body.dark-mode .footer-section h3 {
+    color: #fff !important;
+    -webkit-text-fill-color: #fff !important;
+}
+body.dark-mode .button,
+body.dark-mode .button-primary {
+    background: linear-gradient(135deg, #2e8b57 0%, #3cb371 100%) !important;
+    color: #fff !important;
+    border: none !important;
+}
+body.dark-mode .button-secondary {
+    background: transparent !important;
+    color: #3cb371 !important;
+    border: 2px solid #3cb371 !important;
+}
+body.dark-mode .button-secondary:hover {
+    background: #3cb371 !important;
+    color: #fff !important;
+}
+body.dark-mode .nav-links a,
+body.dark-mode .nav-links a:visited {
+    color: #e0e0e0 !important;
+}
+body.dark-mode .nav-links a:hover {
+    color: #3cb371 !important;
+}
+body.dark-mode .plan-card,
+body.dark-mode .gallery-item,
+body.dark-mode .contact-form {
+    background: #23272a !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .plan-card.featured {
+    background: linear-gradient(135deg, #2e8b57 0%, #3cb371 100%) !important;
+    color: #fff !important;
+}
+body.dark-mode .gallery-overlay {
+    background: linear-gradient(transparent, rgba(30, 30, 30, 0.85));
+    color: #fff !important;
+}
+body.dark-mode .team-member {
+    background: #23272a !important;
+    color: #e0e0e0 !important;
+}
+body.dark-mode .team-role {
+    color: #3cb371 !important;
+}
+body.dark-mode .divider {
+    background-color: #3cb371 !important;
+}
+body.dark-mode .footer-section ul li a {
+    color: #b0ffcc !important;
+}
+body.dark-mode .footer-section ul li a:hover {
+    color: #3cb371 !important;
+}
+body.dark-mode .footer-bottom {
+    color: #aaa !important;
+    border-top: 1px solid #444;
+}
+body.dark-mode .form-group input,
+body.dark-mode .contact-form textarea {
+    background: #181a1b !important;
+    color: #fff !important;
+    border-color: #3cb371 !important;
+}
+body.dark-mode .feature-item-icon {
+    background-color: #3cb371 !important;
+    color: #fff !important;
+}
+body.dark-mode .portfolio-filters .filter {
+    background: #23272a !important;
+    color: #b0ffcc !important;
+}
+body.dark-mode .portfolio-filters .filter.active,
+body.dark-mode .portfolio-filters .filter:hover {
+    background: #3cb371 !important;
+    color: #fff !important;
+}
+
+/* Botón Dark Mode Toggle Switch */
+#dark-mode-toggle {
+    position: relative;
+    width: 60px;
+    height: 30px;
+    background: #e0e0e0;
+    border-radius: 15px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    margin-left: 15px;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+}
+
+#dark-mode-toggle::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 26px;
+    height: 26px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+}
+
+#dark-mode-toggle i {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 12px;
+    transition: all 0.3s ease;
+    z-index: 2;
+}
+
+#dark-mode-toggle i.fa-moon {
+    left: 8px;
+    color: #666;
+}
+
+#dark-mode-toggle i.fa-sun {
+    right: 8px;
+    color: #f39c12;
+}
+
+/* Estado activo (modo oscuro) */
+body.dark-mode #dark-mode-toggle {
+    background: #2e8b57;
+}
+
+body.dark-mode #dark-mode-toggle::before {
+    transform: translateX(30px);
+}
+
+body.dark-mode #dark-mode-toggle i.fa-moon {
+    opacity: 0;
+}
+
+body.dark-mode #dark-mode-toggle i.fa-sun {
+    opacity: 1;
+}
+
+/* Estado inactivo (modo claro) */
+#dark-mode-toggle i.fa-moon {
+    opacity: 1;
+}
+
+#dark-mode-toggle i.fa-sun {
+    opacity: 0;
+}
+
+/* Hover effects */
+#dark-mode-toggle:hover {
+    transform: scale(1.05);
+}
+
+#dark-mode-toggle:focus {
+    outline: 2px solid #2e8b57;
+    outline-offset: 2px;
+}
+
+/* Responsive para móvil */
+@media (max-width: 768px) {
+    #dark-mode-toggle {
+        width: 50px;
+        height: 25px;
+        margin-left: 10px;
+    }
+    
+    #dark-mode-toggle::before {
+        width: 21px;
+        height: 21px;
+    }
+    
+    body.dark-mode #dark-mode-toggle::before {
+        transform: translateX(25px);
+    }
+    
+    #dark-mode-toggle i {
+        font-size: 10px;
+    }
+    
+    #dark-mode-toggle i.fa-moon {
+        left: 6px;
+    }
+    
+    #dark-mode-toggle i.fa-sun {
+        right: 6px;
+    }
 }
