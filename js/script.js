@@ -64,9 +64,11 @@ $(document).ready(function() {
         }
     });
 
-    backToTopButton.on('click', function(e) {
+    // Corregir scroll para botón back-to-top
+    $('.back-to-top').off('click').on('click', function(e) {
         e.preventDefault();
-        $('html, body').animate({ scrollTop: 0 }, 500, 'swing');
+        e.stopPropagation();
+        $('html, body').animate({ scrollTop: 0 }, 800, 'swing');
     });
 
     // Menú hamburguesa para móviles
