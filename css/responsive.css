@@ -21,9 +21,23 @@
     .nav-links li { padding: 15px 0; }
     .nav-button { display: none; }
     .hamburger { display: block; }
-    .hero-section { padding: 120px 0; }
-    .hero-content h1 { font-size: 40px; }
-    .hero-visuals { width: 150%; }
+    .hero-section { padding: 60px 0 40px 0; min-height: 80vh; }
+    .hero-content h1 {
+        font-size: 2.1rem;
+        line-height: 1.15;
+        word-break: break-word;
+        white-space: normal;
+        margin-bottom: 1rem;
+    }
+    .subtitle {
+        font-size: 1rem;
+        line-height: 1.4;
+        padding: 0 10px;
+        max-width: 95vw;
+        margin-left: auto;
+        margin-right: auto;
+    }
+    .hero-visuals { width: 100%; margin-bottom: 20px; }
     .hero-buttons { flex-direction: column; align-items: center; gap: 15px; }
     .features-grid, .team-grid, .portfolio-gallery { grid-template-columns: 1fr; }
 }
