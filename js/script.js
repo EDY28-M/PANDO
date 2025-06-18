@@ -37,7 +37,7 @@ $(document).ready(function() {
     });
   
     // Desplazamiento Suave (Smooth Scrolling)
-    $('a[href*="#"]').on('click', function(e) {
+    $('a[href*="#"]').not('.back-to-top').on('click', function(e) {
       e.preventDefault();
       const target = $(this).attr('href');
       $('html, body').animate({
