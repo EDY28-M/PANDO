@@ -14,11 +14,21 @@ app.use(express.static(path.join(__dirname)));
 
 // Configurar transporter de Gmail con configuración optimizada
 const transporter = nodemailer.createTransport({
-    service: 'gmail',
+    host: 'smtp.gmail.com',
+    port: 587,
+    secure: false, // Usar STARTTLS
     auth: {
         user: emailConfig.user,
         pass: emailConfig.pass
     },
+    // Configuración TLS para solucionar problemas de certificados
+    tls: {
+        rejectUnauthorized: false,
+        ciphers: 'SSLv3'
+    },
+    // Configuración adicional para desarrollo y producción
+    requireTLS: true,
+    ignoreTLS: false,
     // Configuración para envío más rápido
     pool: true,
     maxConnections: 5,
@@ -324,10 +334,11 @@ app.post('/send-email', async (req, res) => {
 
         // Preparar ambos correos simultáneamente
         const adminMailOptions = {
-            from: emailConfig.from,
+            from: `"${name}" <${email}>`,
             to: emailConfig.to,
-            subject: `Nuevo contacto: ${subject}`,
-            html: createAdminEmailTemplate(formData)
+            subject: `Nuevo contacto de ${name} - ${subject}`,
+            html: createAdminEmailTemplate(formData),
+            replyTo: email
         };
 
         const clientMailOptions = {
