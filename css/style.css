@@ -1175,3 +1175,29 @@ body.dark-mode #particles-js {
 }
 
 /* Efectos de glassmorphism */
+
+/* Ocultar flechas de scroll en desktop - solo mostrar en móviles y tablets */
+.scroll-hint-mobile {
+    display: none; /* Oculto por defecto en todas las pantallas */
+}
+
+/* Mostrar solo en móviles y tablets */
+@media (max-width: 768px) {
+    .scroll-hint-mobile {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        margin-top: 0.5rem;
+        color: #2e8b57;
+        font-size: 1.1rem;
+        opacity: 0.85;
+        animation: hint-bounce 1.5s infinite;
+        user-select: none;
+    }
+    .scroll-hint-mobile i {
+        font-size: 2rem;
+        margin-top: 0.2rem;
+        animation: arrow-move 1.5s infinite;
+    }
+}
