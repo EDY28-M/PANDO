@@ -6,28 +6,12 @@ $(document).ready(function() {
     // Inicializaciones generales
     // ──────────────────────────────────────────────────────────────
   
-    // Inicializar AOS (Animate On Scroll) con configuración mejorada
+    // Inicializar AOS (Animate On Scroll)
     AOS.init({
       duration: 1000,
       once: true,
-      offset: 50,
-      easing: 'ease-out-cubic',
-      delay: 100
+      offset: 50 // Inicia la animación un poco antes
     });
-
-    // ──────────────────────────────────────────────────────────────
-    // Indicador de progreso de scroll
-    // ──────────────────────────────────────────────────────────────
-    
-    function updateScrollProgress() {
-      const scrollTop = $(window).scrollTop();
-      const docHeight = $(document).height() - $(window).height();
-      const scrollPercent = (scrollTop / docHeight) * 100;
-      $('.scroll-progress').css('transform', `scaleX(${scrollPercent / 100})`);
-    }
-
-    $(window).on('scroll', updateScrollProgress);
-    updateScrollProgress(); // Inicializar
   
     // Inicializar Fancybox para la galería
     $(".fancybox").fancybox({
@@ -61,46 +45,16 @@ $(document).ready(function() {
       }, 500, 'swing');
     });
   
-    // ──────────────────────────────────────────────────────────────
-    // Navegación mejorada y botón "Volver Arriba"
-    // ──────────────────────────────────────────────────────────────
-    
+    // Botón "Volver Arriba"
     const backToTopButton = $('.back-to-top');
-    let lastScrollTop = 0;
-    
     $(window).on('scroll', function() {
       const nav = $('nav');
-      const scrollTop = $(this).scrollTop();
-      
-      // Efecto de navegación al hacer scroll
-      if (scrollTop > 50) {
-        nav.addClass('nav-scrolled');
-      } else {
-        nav.removeClass('nav-scrolled');
-      }
-      
-      // Mostrar/ocultar botón volver arriba con animación mejorada
-      if (scrollTop > 300) {
-        backToTopButton.addClass('show');
-      } else {
-        backToTopButton.removeClass('show');
-      }
-      
-      // Actualizar indicador de progreso
-      updateScrollProgress();
-      
-      lastScrollTop = scrollTop;
+      $(this).scrollTop() > 50 ? nav.addClass('nav-scrolled') : nav.removeClass('nav-scrolled');
+      $(this).scrollTop() > 300 ? backToTopButton.addClass('show') : backToTopButton.removeClass('show');
     });
-    
-    // Animación mejorada para volver arriba
     backToTopButton.on('click', function(e) {
       e.preventDefault();
-      $('html, body').animate({ 
-        scrollTop: 0 
-      }, {
-        duration: 800,
-        easing: 'easeInOutCubic'
-      });
+      $('html, body').animate({ scrollTop: 0 }, 800, 'swing');
     });
   
     // Menú hamburguesa móvil
@@ -237,140 +191,26 @@ $(document).ready(function() {
     });
   
     // ──────────────────────────────────────────────────────────────
-    // Toggle Modo Oscuro Mejorado
+    // Toggle Modo Oscuro
     // ──────────────────────────────────────────────────────────────
   
     const darkModeToggle = $('#dark-mode-toggle');
-    
     function setDarkMode(on) {
-      const body = $('body');
-      
       if (on) {
-        body.addClass('dark-mode');
+        $('body').addClass('dark-mode');
         localStorage.setItem('darkMode','on');
         darkModeToggle.find('i').removeClass('fa-moon').addClass('fa-sun');
-        
-        // Animación suave para el cambio de modo
-        body.css('transition', 'background-color 0.3s ease, color 0.3s ease');
       } else {
-        body.removeClass('dark-mode');
+        $('body').removeClass('dark-mode');
         localStorage.setItem('darkMode','off');
         darkModeToggle.find('i').removeClass('fa-sun').addClass('fa-moon');
-        
-        // Animación suave para el cambio de modo
-        body.css('transition', 'background-color 0.3s ease, color 0.3s ease');
       }
-      
-      // Remover la transición después de la animación
-      setTimeout(() => {
-        body.css('transition', '');
-      }, 300);
     }
-    
-    // Inicializar modo oscuro si está guardado
     if (localStorage.getItem('darkMode') === 'on') setDarkMode(true);
-    
-    // Mejorar la interacción del toggle
     darkModeToggle.on('click keypress', e => {
-      if (e.type === 'click' || e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
+      if (e.type==='click' || e.key==='Enter' || e.key===' ') {
         setDarkMode(!$('body').hasClass('dark-mode'));
-        
-        // Efecto de feedback visual
-        darkModeToggle.addClass('clicked');
-        setTimeout(() => {
-          darkModeToggle.removeClass('clicked');
-        }, 200);
       }
-    });
-
-    // ──────────────────────────────────────────────────────────────
-    // Efectos de micro-interacciones mejorados
-    // ──────────────────────────────────────────────────────────────
-    
-    // Efecto ripple para botones
-    $('.button').on('click', function(e) {
-      const button = $(this);
-      const ripple = $('<span class="ripple"></span>');
-      
-      const rect = this.getBoundingClientRect();
-      const size = Math.max(rect.width, rect.height);
-      const x = e.clientX - rect.left - size / 2;
-      const y = e.clientY - rect.top - size / 2;
-      
-      ripple.css({
-        width: size,
-        height: size,
-        left: x,
-        top: y
-      });
-      
-      button.append(ripple);
-      
-      setTimeout(() => {
-        ripple.remove();
-      }, 600);
-    });
-    
-    // Animaciones de entrada mejoradas para elementos
-    const observerOptions = {
-      threshold: 0.1,
-      rootMargin: '0px 0px -50px 0px'
-    };
-    
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          $(entry.target).addClass('animate-in');
-        }
-      });
-    }, observerOptions);
-    
-    // Observar elementos para animaciones
-    $('.team-member, .plan-card, .gallery-item').each(function() {
-      observer.observe(this);
-    });
-    
-    // ──────────────────────────────────────────────────────────────
-    // Mejoras de accesibilidad
-    // ──────────────────────────────────────────────────────────────
-    
-    // Navegación por teclado mejorada
-    $('.nav-links a, .button').on('keydown', function(e) {
-      if (e.key === 'Enter' || e.key === ' ') {
-        e.preventDefault();
-        $(this).click();
-      }
-    });
-    
-    // Indicadores de foco mejorados
-    $('a, button, input, textarea').on('focus', function() {
-      $(this).addClass('focused');
-    }).on('blur', function() {
-      $(this).removeClass('focused');
-    });
-    
-    // ──────────────────────────────────────────────────────────────
-    // Optimizaciones de rendimiento
-    // ──────────────────────────────────────────────────────────────
-    
-    // Lazy loading para imágenes
-    const imageObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          const img = entry.target;
-          if (img.dataset.src) {
-            img.src = img.dataset.src;
-            img.removeAttribute('data-src');
-            imageObserver.unobserve(img);
-          }
-        }
-      });
-    });
-    
-    // Aplicar lazy loading a imágenes con data-src
-    $('img[data-src]').each(function() {
-      imageObserver.observe(this);
     });
   
   }); // fin document.ready

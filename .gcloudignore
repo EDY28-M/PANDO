@@ -1,0 +1,37 @@
+# Archivos de desarrollo
+node_modules/
+npm-debug.log
+.env
+.env.local
+.env.development
+.env.test
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de Git
+.git/
+.gitignore
+
+# Archivos de IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Archivos de logs
+logs/
+*.log
+
+# Archivos temporales
+tmp/
+temp/
+
+# Archivos de configuración local
+config.env.example
+README.md
+Readme.txt
+
+# Archivos de desarrollo
+package-lock.json 
