@@ -13,10 +13,8 @@
     --shadow-light: rgba(0, 0, 0, 0.06);
     --shadow-dark: rgba(46, 139, 87, 0.2);
     --font-family: 'Inter', sans-serif; /* Nueva fuente Inter */
-}
-
-
-/* --- Reseteo y Estilos Base --- */
+.9; }
+teo y Estilos Base --- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
@@ -1175,7 +1173,20 @@ body.dark-mode #particles-js {
 }
 
 /* Efectos de glassmorphism */
-
+.portfolio-gallery {
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    gap: 1rem;
+    padding: 1rem 0;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+.gallery-item {
+    min-width: 280px;
+    flex: 0 0 auto;
+    scroll-snap-align: start;
+}
 /* Ocultar flechas de scroll en desktop - solo mostrar en móviles y tablets */
 .scroll-hint-mobile {
     display: none; /* Oculto por defecto en todas las pantallas */
