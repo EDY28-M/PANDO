@@ -13,7 +13,7 @@
     --shadow-light: rgba(0, 0, 0, 0.06);
     --shadow-dark: rgba(46, 139, 87, 0.2);
     --font-family: 'Inter', sans-serif; /* Nueva fuente Inter */
-.9; }
+ }
 teo y Estilos Base --- */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 html { scroll-behavior: smooth; }
@@ -123,7 +123,59 @@ body.dark-mode .process-section li {
     color: #e0e0e0 !important;
 }
 .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
-section { padding: 100px 0; }
+section { padding: 60px 0; }
+
+/* Reduce padding in hero section */
+.hero-section {
+    height: auto;
+    padding: 60px 0;
+}
+
+/* Reduce padding in main containers */
+.container {
+    padding-left: 15px;
+    padding-right: 15px;
+}
+
+/* Reduce margin in section titles */
+.section-title {
+    margin-bottom: 0.75rem;
+}
+
+/* Reduce margin in section subtitles */
+.section-subtitle {
+    margin-bottom: 2rem;
+}
+
+/* Reduce padding in footer */
+footer {
+    padding: 3rem 0 1.5rem;
+}
+
+/* Reduce padding in footer content */
+.footer-content {
+    padding: 1.5rem 1rem;
+}
+
+/* Reduce padding in contact form */
+.contact-form {
+    padding: 1.5rem;
+}
+
+/* Reduce padding in hosting plans */
+.hosting-plans {
+    margin-top: 1.5rem;
+}
+
+/* Reduce padding in team section */
+.team-section {
+    padding: 60px 0;
+}
+
+/* Reduce padding in portfolio section */
+.portfolio-section {
+    padding: 60px 0;
+}
 
 /* --- Títulos y Botones --- */
 .section-title {

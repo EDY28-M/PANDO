@@ -4,12 +4,12 @@
 @media (max-width: 1024px) {
     .container {
         max-width: 95%;
-        padding: 0 15px;
+        padding: 0 10px;
     }
     
     .hero-container {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 1rem;
         text-align: center;
     }
     
@@ -19,12 +19,17 @@
     
     .section-title {
         font-size: 2.5rem;
+        margin-bottom: 0.75rem;
+    }
+    
+    .section-subtitle {
+        margin-bottom: 1.5rem;
     }
     
     .feature-content-wrapper,
     .feature-content-wrapper.reverse {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 1.5rem;
     }
     
     .feature-content-wrapper.reverse .feature-text-content {
@@ -41,12 +46,12 @@
     
     .contact-wrapper {
         grid-template-columns: 1fr;
-        gap: 2rem;
+        gap: 1.5rem;
     }
     
     .footer-content {
         grid-template-columns: 1fr 1fr;
-        gap: 2rem;
+        gap: 1.5rem;
     }
 }
 
