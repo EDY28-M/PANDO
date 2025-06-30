@@ -1,188 +1,112 @@
-# Kera AI Cuentas - Sitio Web
+# LWP - Lead Working Partner Website
 
-Sitio web para la venta de cuentas premium de IA y streaming (ChatGPT Plus, Gemini Pro, Netflix, etc.).
+Sitio web profesional con sistema de correos integrado usando Gmail.
 
-## 🚀 Configuración Rápida
+## 🚀 Características
 
-### 1. Instalación de Dependencias
+- ✅ Diseño moderno y responsivo
+- ✅ Modo oscuro/claro
+- ✅ Sistema de correos con Gmail
+- ✅ Formulario de contacto funcional
+- ✅ Animaciones y efectos visuales
+- ✅ Portafolio interactivo
+
+## 📧 Sistema de Correos
+
+El sistema envía dos correos automáticamente:
+
+1. **Correo al administrador**: Con todos los datos del formulario
+2. **Correo al cliente**: Mensaje de agradecimiento personalizado
+
+## 🛠️ Instalación
+
+### 1. Instalar dependencias
 ```bash
 npm install
 ```
 
-### 2. Configuración del Entorno
-```bash
-npm run setup
-```
-Este comando creará automáticamente el archivo `.env` con la configuración necesaria.
+### 2. Configurar Gmail
+- Asegúrate de tener habilitada la verificación en dos pasos en tu cuenta de Gmail
+- Genera una contraseña de aplicación: `luyi gciz muwu adsq`
+- El correo configurado es: `keraaigpt.plus@gmail.com`
 
-### 3. Verificar Configuración de Email
+### 3. Iniciar servidor
 ```bash
-npm run test-email
-```
-Este comando enviará un email de prueba para verificar que todo funciona correctamente.
-
-### 4. Iniciar el Servidor
-
-**Para desarrollo (con recarga automática):**
-```bash
+# Desarrollo (con auto-reload)
 npm run dev
-```
 
-**Para producción local:**
-```bash
+# Producción
 npm start
 ```
 
-**Para producción en Google Cloud:**
-```bash
-npm run deploy
-```
+### 4. Acceder al sitio
+Abre tu navegador en: `http://localhost:3000`
 
-## 📧 Configuración de Email
-
-### Credenciales Configuradas
-- **Usuario Gmail:** `keraaigpt.plus@gmail.com`
-- **Contraseña de Aplicación:** Configurada en variables de entorno
-
-### Variables de Entorno
-
-**Desarrollo Local (.env):**
-```env
-GMAIL_USER=keraaigpt.plus@gmail.com
-GMAIL_PASS=tnev ssds hcpx evrw
-NODE_ENV=development
-PORT=3000
-```
-
-**Producción (app.yaml):**
-```yaml
-env_variables:
-  GMAIL_USER: "keraaigpt.plus@gmail.com"
-  GMAIL_PASS: "tnev ssds hcpx evrw"
-  NODE_ENV: production
-```
-
-### Solución de Problemas de Email
-
-#### Error de Autenticación (EAUTH)
-1. Verifica que la verificación en 2 pasos esté activada en Gmail
-2. Genera una nueva contraseña de aplicación en: https://myaccount.google.com/apppasswords
-3. Actualiza la variable `GMAIL_PASS` con la nueva contraseña
-
-#### Error de Conexión (ECONNECTION)
-1. Verifica tu conexión a internet
-2. El servidor SMTP puede estar temporalmente no disponible
-3. Intenta nuevamente en unos minutos
-
-#### Error de Timeout (ETIMEDOUT)
-1. El servidor tardó demasiado en responder
-2. Verifica la configuración de firewall
-3. Intenta con una conexión más estable
-
-## 🛠️ Scripts Disponibles
-
-| Comando | Descripción |
-|---------|-------------|
-| `npm start` | Inicia el servidor en modo producción |
-| `npm run dev` | Inicia el servidor en modo desarrollo con nodemon |
-| `npm run setup` | Configura automáticamente el entorno local |
-| `npm run test-email` | Envía un email de prueba para verificar la configuración |
-| `npm run test-config` | Verifica que la configuración de email se carga correctamente |
-| `npm run deploy` | Despliega la aplicación en Google Cloud Platform |
-| `npm run logs` | Muestra los logs de la aplicación en producción |
-| `npm run open` | Abre la aplicación en el navegador |
-
-## 🌐 URLs
-
-- **Desarrollo Local:** http://localhost:3000
-- **Producción:** https://tu-app-id.appspot.com (después del despliegue)
-
-## 📁 Estructura del Proyecto
+## 📁 Estructura del proyecto
 
 ```
 PANDO/
 ├── config/
-│   └── email.js          # Configuración de email
-├── css/                  # Estilos CSS
-├── js/                   # JavaScript del frontend
+│   └── email.js          # Configuración de correos
+├── css/
+│   ├── style.css         # Estilos principales
+│   └── responsive.css    # Estilos responsivos
 ├── images/               # Imágenes del sitio
-├── server.js             # Servidor Express
+├── js/
+│   └── script.js         # JavaScript del frontend
+├── videos/               # Videos del sitio
 ├── index.html            # Página principal
-├── app.yaml              # Configuración de Google Cloud
-├── Dockerfile            # Configuración de Docker
-├── package.json          # Dependencias y scripts
-├── setup-local.js        # Script de configuración local
-├── test-email.js         # Script de prueba de email
+├── server.js             # Servidor Node.js
+├── package.json          # Dependencias
 └── README.md             # Este archivo
 ```
 
-## 🔧 Configuración Avanzada
+## 🔧 Configuración de correos
 
-### Personalizar Plantillas de Email
-Las plantillas de email se encuentran en `server.js`:
-- `createAdminEmailTemplate()` - Email que recibe el administrador
-- `createClientEmailTemplate()` - Email de confirmación al cliente
+El sistema está configurado para usar Gmail directamente:
 
-### Configuración de TLS
-La configuración TLS está optimizada para evitar problemas de certificados:
-```javascript
-tls: {
-    rejectUnauthorized: false,
-    ciphers: 'SSLv3'
-}
-```
+- **Servicio**: Gmail SMTP
+- **Puerto**: 587
+- **Seguridad**: TLS
+- **Autenticación**: OAuth2 con contraseña de aplicación
 
-### Rate Limiting
-Configuración para evitar spam:
-- Máximo 14 emails por segundo
-- Pool de conexiones para mejor rendimiento
-- Timeouts configurados para estabilidad
+## 📱 Características del formulario
 
-## 🚀 Despliegue en Google Cloud Platform
+- ✅ Validación de campos
+- ✅ Envío asíncrono
+- ✅ Feedback visual
+- ✅ Manejo de errores
+- ✅ Limpieza automática
 
-### Requisitos Previos
-1. Cuenta de Google Cloud Platform
-2. Google Cloud SDK instalado
-3. Proyecto creado en GCP
+## 🎨 Plantillas de correo
 
-### Pasos de Despliegue
-1. **Autenticarse:**
-   ```bash
-   gcloud auth login
-   gcloud config set project tu-proyecto-id
-   ```
+### Correo al administrador
+- Diseño profesional con colores de LWP
+- Todos los datos del formulario
+- Timestamp de envío
+- Información del remitente
 
-2. **Desplegar:**
-   ```bash
-   npm run deploy
-   ```
+### Correo al cliente
+- Mensaje de agradecimiento personalizado
+- Información sobre LWP
+- Características de los servicios
+- Datos de contacto
 
-3. **Ver logs:**
-   ```bash
-   npm run logs
-   ```
+## 🚀 Despliegue
 
-4. **Abrir aplicación:**
-   ```bash
-   npm run open
-   ```
+Para desplegar en producción:
+
+1. Configura las variables de entorno
+2. Usa un servicio como Heroku, Vercel o Railway
+3. Configura el dominio personalizado
+4. Asegúrate de que el puerto sea configurable
 
 ## 📞 Soporte
 
-Si tienes problemas con la configuración de email:
-
-1. Ejecuta `npm run test-email` para diagnosticar
-2. Verifica las credenciales de Gmail
-3. Asegúrate de usar una contraseña de aplicación
-4. Revisa los logs del servidor
-
-## 🔒 Seguridad
-
-- Las credenciales están protegidas en variables de entorno
-- No se almacenan contraseñas en el código fuente
-- Configuración TLS para conexiones seguras
-- Rate limiting para prevenir spam
+Para soporte técnico o consultas:
+- 📧 contacto@lwp.com.pe
+- 📱 +51 999 888 777
 
 ---
 
-**Desarrollado por Kera AI Cuentas** 🚀 
+**Desarrollado por LWP - Lead Working Partner** 🚀 
