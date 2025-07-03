@@ -3,6 +3,8 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
 const emailConfig = require('./config/email');
+const database = require('./config/database');
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -47,6 +49,15 @@ transporter.verify(function(error, success) {
         console.log('❌ Error en configuración de correo:', error);
     } else {
         console.log('✅ Servidor de correos configurado correctamente');
+    }
+});
+
+// Inicializar base de datos al arrancar el servidor
+database.initializeDatabase().then(success => {
+    if (success) {
+        console.log('✅ Base de datos MySQL lista para usar');
+    } else {
+        console.log('⚠️ Advertencia: Problemas con la base de datos MySQL');
     }
 });
 
@@ -308,80 +319,182 @@ function createClientEmailTemplate(formData) {
     `;
 }
 
-// Ruta para enviar correo optimizada
+// Ruta para enviar correo optimizada con MySQL
 app.post('/send-email', async (req, res) => {
     try {
         const { name, email, subject, message } = req.body;
 
         // Validar campos requeridos
         if (!name || !email || !subject || !message) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Todos los campos son requeridos' 
+            return res.status(400).json({
+                success: false,
+                message: 'Todos los campos son obligatorios'
             });
         }
 
         // Validar formato de email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
-            return res.status(400).json({ 
-                success: false, 
-                message: 'Formato de email inválido' 
+            return res.status(400).json({
+                success: false,
+                message: 'Formato de email inválido'
             });
         }
 
         const formData = { name, email, subject, message };
+        
+        // Obtener información adicional de la solicitud
+        const clientIP = req.ip || req.connection.remoteAddress || req.socket.remoteAddress || 'unknown';
+        const userAgent = req.get('User-Agent') || 'unknown';
 
-        // Preparar ambos correos simultáneamente
-        const adminMailOptions = {
-            from: `"${name}" <${email}>`,
-            to: emailConfig.to,
-            subject: `Nuevo contacto de ${name} - ${subject}`,
-            html: createAdminEmailTemplate(formData),
-            replyTo: email
-        };
-
-        const clientMailOptions = {
-            from: emailConfig.from,
-            to: email,
-            subject: 'Gracias por contactarnos - LWP Developers',
-            html: createClientEmailTemplate(formData)
-        };
-
-        // Enviar ambos correos en paralelo para mayor velocidad
-        const [adminResult, clientResult] = await Promise.all([
-            transporter.sendMail(adminMailOptions),
-            transporter.sendMail(clientMailOptions)
-        ]);
-
-        console.log('✅ Correos enviados exitosamente:', {
-            admin: adminResult.messageId,
-            client: clientResult.messageId,
-            timestamp: new Date().toISOString()
+        // 1. GUARDAR EN BASE DE DATOS PRIMERO (PRIORIDAD)
+        const dbResult = await database.insertContact({
+            name: name.trim(),
+            email: email.trim().toLowerCase(),
+            subject: subject.trim(),
+            message: message.trim(),
+            ip_address: clientIP,
+            user_agent: userAgent
         });
 
-        res.json({ 
-            success: true, 
-            message: 'Mensaje enviado correctamente' 
+        if (!dbResult.success) {
+            console.error('❌ Error al guardar en DB:', dbResult.error);
+            // Continuar con el envío de email aunque falle la DB
+        } else {
+            console.log(`✅ Contacto guardado en DB con ID: ${dbResult.id}`);
+        }
+
+        // 2. ENVIAR EMAILS (como funcionalidad secundaria)
+        let emailsSuccessful = false;
+        try {
+            // Preparar ambos correos simultáneamente
+            const adminMailOptions = {
+                from: `"${name}" <${emailConfig.user}>`,
+                to: emailConfig.user,
+                subject: `Nuevo mensaje de ${name}: ${subject}`,
+                html: createAdminEmailTemplate(formData),
+                replyTo: email
+            };
+
+            const clientMailOptions = {
+                from: `"LWP Team" <${emailConfig.user}>`,
+                to: email,
+                subject: 'Gracias por contactarnos - LWP',
+                html: createClientEmailTemplate(formData)
+            };
+
+            // Enviar ambos emails de forma asíncrona
+            const [adminResult, clientResult] = await Promise.all([
+                transporter.sendMail(adminMailOptions),
+                transporter.sendMail(clientMailOptions)
+            ]);
+
+            console.log('✅ Emails enviados correctamente:', {
+                admin: adminResult.messageId,
+                client: clientResult.messageId,
+                timestamp: new Date().toISOString()
+            });
+            
+            emailsSuccessful = true;
+            
+        } catch (emailError) {
+            console.error('⚠️ Error al enviar emails:', emailError.message);
+            // No falla la respuesta si el email falla, ya que se guardó en DB
+        }
+
+        // Respuesta exitosa (prioriza que se guardó en DB)
+        res.json({
+            success: true,
+            message: emailsSuccessful ? 
+                'Mensaje recibido y guardado exitosamente. Te hemos enviado un email de confirmación.' :
+                'Mensaje recibido y guardado exitosamente. Te contactaremos pronto.',
+            id: dbResult.id || null,
+            saved_to_database: dbResult.success,
+            emails_sent: emailsSuccessful
         });
 
     } catch (error) {
-        console.error('❌ Error enviando correo:', error);
+        console.error('❌ Error general en /send-email:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor. Por favor intenta más tarde.'
+        });
+    }
+});
+
+// Ruta para obtener todos los contactos (para administración)
+app.get('/api/contacts', async (req, res) => {
+    try {
+        const page = parseInt(req.query.page) || 1;
+        const limit = parseInt(req.query.limit) || 20;
+        const offset = (page - 1) * limit;
+
+        const result = await database.getAllContacts(limit, offset);
         
-        // Error más específico para el usuario
-        let errorMessage = 'Error al enviar el mensaje. Por favor, intenta nuevamente.';
-        
-        if (error.code === 'EAUTH') {
-            errorMessage = 'Error de autenticación del servidor de correos.';
-        } else if (error.code === 'ECONNECTION') {
-            errorMessage = 'Error de conexión. Verifica tu conexión a internet.';
-        } else if (error.code === 'ETIMEDOUT') {
-            errorMessage = 'Tiempo de espera agotado. Intenta nuevamente.';
+        if (result.success) {
+            res.json({
+                success: true,
+                data: result.data,
+                pagination: {
+                    current_page: page,
+                    limit: limit,
+                    offset: offset
+                }
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Error al obtener contactos'
+            });
         }
+    } catch (error) {
+        console.error('Error en /api/contacts:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor'
+        });
+    }
+});
+
+// Ruta para obtener estadísticas de contactos
+app.get('/api/contacts/stats', async (req, res) => {
+    try {
+        const result = await database.getContactStats();
         
-        res.status(500).json({ 
-            success: false, 
-            message: errorMessage 
+        if (result.success) {
+            res.json({
+                success: true,
+                stats: result.stats
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Error al obtener estadísticas'
+            });
+        }
+    } catch (error) {
+        console.error('Error en /api/contacts/stats:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor'
+        });
+    }
+});
+
+// Ruta para verificar el estado de la base de datos
+app.get('/api/database/status', async (req, res) => {
+    try {
+        const isConnected = await database.testConnection();
+        res.json({
+            success: true,
+            database_connected: isConnected,
+            timestamp: new Date().toISOString()
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            database_connected: false,
+            error: error.message
         });
     }
 });
@@ -389,6 +502,11 @@ app.post('/send-email', async (req, res) => {
 // Ruta principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// Ruta para la página de administración
+app.get('/admin', (req, res) => {
+    res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
 // Iniciar servidor
