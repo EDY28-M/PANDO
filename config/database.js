@@ -301,5 +301,290 @@ module.exports = {
     initializeDatabase,
     insertContact,
     getAllContacts,
-    getContactStats
+    getContactStats,
+    updateContactStatus,
+    getAdvancedAnalytics,
+    cleanupOldContacts,
+    deleteContact
 };
+
+// Función para actualizar el estado de un contacto
+async function updateContactStatus(contactId, newStatus) {
+    try {
+        if (mysqlAvailable) {
+            const connection = await pool.getConnection();
+            
+            const updateQuery = `
+                UPDATE contact_submissions 
+                SET status = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+            `;
+            
+            const [result] = await connection.execute(updateQuery, [newStatus, contactId]);
+            connection.release();
+            
+            return {
+                success: true,
+                affectedRows: result.affectedRows
+            };
+        } else {
+            // Actualizar en archivo JSON
+            return await updateContactStatusInFile(contactId, newStatus);
+        }
+    } catch (error) {
+        console.error('❌ Error al actualizar estado:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+// Función para obtener analíticas avanzadas
+async function getAdvancedAnalytics(periodDays = 30) {
+    try {
+        if (mysqlAvailable) {
+            const connection = await pool.getConnection();
+            
+            const analyticsQuery = `
+                SELECT 
+                    COUNT(*) as total_contacts,
+                    COUNT(CASE WHEN status = 'new' THEN 1 END) as new_contacts,
+                    COUNT(CASE WHEN status = 'read' THEN 1 END) as read_contacts,
+                    COUNT(CASE WHEN status = 'replied' THEN 1 END) as replied_contacts,
+                    COUNT(CASE WHEN status = 'archived' THEN 1 END) as archived_contacts,
+                    COUNT(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) THEN 1 END) as period_contacts,
+                    AVG(CASE WHEN created_at >= DATE_SUB(NOW(), INTERVAL ? DAY) THEN 1 ELSE 0 END) as daily_average
+                FROM contact_submissions
+            `;
+            
+            const [rows] = await connection.execute(analyticsQuery, [periodDays, periodDays]);
+            connection.release();
+            
+            return {
+                success: true,
+                analytics: rows[0] || {}
+            };
+        } else {
+            // Obtener analíticas desde archivo JSON
+            return await getAdvancedAnalyticsFromFile(periodDays);
+        }
+    } catch (error) {
+        console.error('❌ Error al obtener analíticas:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+// Función para limpiar contactos antiguos
+async function cleanupOldContacts(daysOld = 90) {
+    try {
+        if (mysqlAvailable) {
+            const connection = await pool.getConnection();
+            
+            const deleteQuery = `
+                DELETE FROM contact_submissions 
+                WHERE created_at < DATE_SUB(NOW(), INTERVAL ? DAY)
+                AND (status = 'archived' OR status = 'read')
+            `;
+            
+            const [result] = await connection.execute(deleteQuery, [daysOld]);
+            connection.release();
+            
+            console.log(`✅ Limpieza completada: ${result.affectedRows} contactos eliminados`);
+            return {
+                success: true,
+                deletedCount: result.affectedRows
+            };
+        } else {
+            // Limpiar desde archivo JSON
+            return await cleanupOldContactsFromFile(daysOld);
+        }
+    } catch (error) {
+        console.error('❌ Error al limpiar contactos:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+// Funciones para manejo de archivos JSON (respaldo)
+async function updateContactStatusInFile(contactId, newStatus) {
+    try {
+        await fs.mkdir(backupDir, { recursive: true });
+        
+        let contacts = [];
+        try {
+            const data = await fs.readFile(contactsFile, 'utf8');
+            contacts = JSON.parse(data);
+        } catch (error) {
+            // Archivo no existe
+            return { success: false, error: 'Contacto no encontrado' };
+        }
+
+        const contactIndex = contacts.findIndex(c => c.id == contactId);
+        if (contactIndex === -1) {
+            return { success: false, error: 'Contacto no encontrado' };
+        }
+
+        contacts[contactIndex].status = newStatus;
+        contacts[contactIndex].updated_at = new Date().toISOString();
+
+        await fs.writeFile(contactsFile, JSON.stringify(contacts, null, 2));
+        
+        return {
+            success: true,
+            affectedRows: 1
+        };
+    } catch (error) {
+        console.error('❌ Error al actualizar estado en archivo:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+async function getAdvancedAnalyticsFromFile(periodDays) {
+    try {
+        let contacts = [];
+        try {
+            const data = await fs.readFile(contactsFile, 'utf8');
+            contacts = JSON.parse(data);
+        } catch (error) {
+            contacts = [];
+        }
+
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - periodDays);
+        
+        const periodContacts = contacts.filter(c => new Date(c.created_at) >= cutoffDate);
+        
+        const analytics = {
+            total_contacts: contacts.length,
+            new_contacts: contacts.filter(c => c.status === 'new').length,
+            read_contacts: contacts.filter(c => c.status === 'read').length,
+            replied_contacts: contacts.filter(c => c.status === 'replied').length,
+            archived_contacts: contacts.filter(c => c.status === 'archived').length,
+            period_contacts: periodContacts.length,
+            daily_average: Math.round(periodContacts.length / periodDays)
+        };
+
+        return {
+            success: true,
+            analytics
+        };
+    } catch (error) {
+        console.error('❌ Error al obtener analíticas desde archivo:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+async function cleanupOldContactsFromFile(daysOld) {
+    try {
+        await fs.mkdir(backupDir, { recursive: true });
+        
+        let contacts = [];
+        try {
+            const data = await fs.readFile(contactsFile, 'utf8');
+            contacts = JSON.parse(data);
+        } catch (error) {
+            return { success: true, deletedCount: 0 };
+        }
+
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - daysOld);
+        
+        const initialCount = contacts.length;
+        const filteredContacts = contacts.filter(c => {
+            const contactDate = new Date(c.created_at);
+            // Eliminar contactos antiguos que están archivados o leídos
+            return !(contactDate < cutoffDate && (c.status === 'archived' || c.status === 'read'));
+        });
+
+        await fs.writeFile(contactsFile, JSON.stringify(filteredContacts, null, 2));
+        
+        const deletedCount = initialCount - filteredContacts.length;
+        console.log(`✅ Limpieza archivo completada: ${deletedCount} contactos eliminados`);
+        
+        return {
+            success: true,
+            deletedCount: deletedCount
+        };
+    } catch (error) {
+        console.error('❌ Error al limpiar contactos desde archivo:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+// Función para eliminar un contacto específico
+async function deleteContact(contactId) {
+    try {
+        if (mysqlAvailable) {
+            const connection = await pool.getConnection();
+            
+            const deleteQuery = `DELETE FROM contact_submissions WHERE id = ?`;
+            const [result] = await connection.execute(deleteQuery, [contactId]);
+            connection.release();
+            
+            console.log(`✅ Contacto ${contactId} eliminado de MySQL`);
+            return {
+                success: true,
+                affectedRows: result.affectedRows
+            };
+        } else {
+            // Eliminar desde archivo JSON
+            return await deleteContactFromFile(contactId);
+        }
+    } catch (error) {
+        console.error('❌ Error al eliminar contacto:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}
+
+async function deleteContactFromFile(contactId) {
+    try {
+        await fs.mkdir(backupDir, { recursive: true });
+        
+        let contacts = [];
+        try {
+            const data = await fs.readFile(contactsFile, 'utf8');
+            contacts = JSON.parse(data);
+        } catch (error) {
+            return { success: false, error: 'Archivo de contactos no encontrado' };
+        }
+
+        const initialCount = contacts.length;
+        const filteredContacts = contacts.filter(c => c.id != contactId);
+
+        if (filteredContacts.length === initialCount) {
+            return { success: false, error: 'Contacto no encontrado' };
+        }
+
+        await fs.writeFile(contactsFile, JSON.stringify(filteredContacts, null, 2));
+        
+        console.log(`✅ Contacto ${contactId} eliminado del archivo JSON`);
+        return {
+            success: true,
+            affectedRows: 1
+        };
+    } catch (error) {
+        console.error('❌ Error al eliminar contacto desde archivo:', error.message);
+        return {
+            success: false,
+            error: error.message
+        };
+    }
+}

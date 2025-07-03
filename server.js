@@ -499,6 +499,171 @@ app.get('/api/database/status', async (req, res) => {
     }
 });
 
+// Ruta para actualizar el estado de un contacto
+app.put('/api/contacts/:id/status', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const { status } = req.body;
+        
+        if (!['new', 'read', 'replied', 'archived'].includes(status)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Estado inválido'
+            });
+        }
+
+        const result = await database.updateContactStatus(id, status);
+        
+        if (result.success) {
+            res.json({
+                success: true,
+                message: 'Estado actualizado correctamente'
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Error al actualizar el estado'
+            });
+        }
+    } catch (error) {
+        console.error('Error en /api/contacts/:id/status:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor'
+        });
+    }
+});
+
+// Ruta para obtener analíticas avanzadas
+app.get('/api/analytics/advanced', async (req, res) => {
+    try {
+        const period = parseInt(req.query.period) || 30;
+        const result = await database.getAdvancedAnalytics(period);
+        
+        if (result.success) {
+            res.json({
+                success: true,
+                analytics: result.analytics
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Error al obtener analíticas'
+            });
+        }
+    } catch (error) {
+        console.error('Error en /api/analytics/advanced:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor'
+        });
+    }
+});
+
+// Ruta para exportar contactos
+app.get('/api/contacts/export', async (req, res) => {
+    try {
+        const format = req.query.format || 'csv';
+        const result = await database.getAllContacts(10000, 0); // Obtener todos
+        
+        if (result.success) {
+            if (format === 'json') {
+                res.setHeader('Content-Type', 'application/json');
+                res.setHeader('Content-Disposition', 'attachment; filename=contactos_pando.json');
+                res.json(result.data);
+            } else {
+                // CSV por defecto
+                const csv = generateCSVFromContacts(result.data);
+                res.setHeader('Content-Type', 'text/csv');
+                res.setHeader('Content-Disposition', 'attachment; filename=contactos_pando.csv');
+                res.send(csv);
+            }
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Error al exportar contactos'
+            });
+        }
+    } catch (error) {
+        console.error('Error en /api/contacts/export:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor'
+        });
+    }
+});
+
+// Función auxiliar para generar CSV
+function generateCSVFromContacts(contacts) {
+    if (!contacts || contacts.length === 0) return '';
+    
+    const headers = ['ID', 'Nombre', 'Email', 'Asunto', 'Mensaje', 'Fecha', 'Estado'];
+    const rows = contacts.map(contact => [
+        contact.id,
+        `"${contact.name}"`,
+        contact.email,
+        `"${contact.subject}"`,
+        `"${contact.message.replace(/"/g, '""')}"`,
+        new Date(contact.created_at).toLocaleDateString('es-ES'),
+        contact.status
+    ]);
+    
+    return [headers, ...rows].map(row => row.join(',')).join('\n');
+}
+
+// Ruta para limpiar datos antiguos
+app.delete('/api/contacts/cleanup', async (req, res) => {
+    try {
+        const daysOld = parseInt(req.query.days) || 90;
+        const result = await database.cleanupOldContacts(daysOld);
+        
+        if (result.success) {
+            res.json({
+                success: true,
+                message: `${result.deletedCount} contactos antiguos eliminados`,
+                deletedCount: result.deletedCount
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: 'Error al limpiar datos antiguos'
+            });
+        }
+    } catch (error) {
+        console.error('Error en /api/contacts/cleanup:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor'
+        });
+    }
+});
+
+// Ruta para eliminar un contacto específico
+app.delete('/api/contacts/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
+        const result = await database.deleteContact(id);
+        
+        if (result.success) {
+            res.json({
+                success: true,
+                message: 'Contacto eliminado correctamente'
+            });
+        } else {
+            res.status(500).json({
+                success: false,
+                message: result.error || 'Error al eliminar el contacto'
+            });
+        }
+    } catch (error) {
+        console.error('Error en /api/contacts/:id DELETE:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Error interno del servidor'
+        });
+    }
+});
+
 // Ruta principal
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
