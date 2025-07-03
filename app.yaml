@@ -6,21 +6,37 @@ env_variables:
   PORT: 8080
   GMAIL_USER: "keraaigpt.plus@gmail.com"
   GMAIL_PASS: "tnev ssds hcpx evrw"
+  
+  # Configuración de Google Cloud SQL
+  # Reemplaza estos valores con tu configuración real
+  GOOGLE_CLOUD_PROJECT: "tu-proyecto-id"
+  CLOUD_SQL_CONNECTION_NAME: "tu-proyecto:us-central1:pando-mysql"
+  DB_USER: "root"
+  DB_PASSWORD: "tu-contraseña-mysql"
+  DB_NAME: "pando_db"
 
+# Configuración automática de instancias
 automatic_scaling:
   target_cpu_utilization: 0.65
   min_instances: 1
   max_instances: 5
 
+# Recursos del servidor
 resources:
   cpu: 1
   memory_gb: 0.5
   disk_size_gb: 10
 
+# Configuración de Cloud SQL Proxy
+beta_settings:
+  cloud_sql_instances: "tu-proyecto:us-central1:pando-mysql"
+
+# Manejadores de URL
 handlers:
   - url: /.*
     script: auto
     secure: always
 
+# Servicios adicionales
 inbound_services:
   - warmup

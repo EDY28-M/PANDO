@@ -3,7 +3,11 @@ const nodemailer = require('nodemailer');
 const cors = require('cors');
 const path = require('path');
 const emailConfig = require('./config/email');
-const database = require('./config/database');
+ 
+//Pruebas locales
+//const database = require('./config/database');
+// Usar la nueva configuración de base de datos para Google Cloud SQL
+const database = require('./config/gcp-database');
 require('dotenv').config();
 
 const app = express();

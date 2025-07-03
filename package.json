@@ -8,13 +8,18 @@
     "dev": "nodemon server.js",
     "setup": "node setup-local.js",
     "setup-db": "node setup-database.js",
+    "setup-gcp": "node setup-gcp-database.js",
     "build": "echo 'No build step required for this project'",
     "deploy": "gcloud app deploy",
+    "deploy:sql": "gcloud sql instances create pando-mysql --database-version=MYSQL_8_0 --tier=db-f1-micro --region=us-central1",
     "logs": "gcloud app logs tail -s default",
     "open": "gcloud app browse",
     "test-email": "node test-email.js",
     "test-config": "node -e \"require('./config/email'); console.log('✅ Configuración de email cargada correctamente');\"",
-    "test-db": "node -e \"require('./config/database').testConnection().then(r => console.log('DB:', r ? '✅ Conectado' : '❌ Error'))\""
+    "test-db": "node -e \"require('./config/gcp-database').testConnection().then(r => console.log('DB:', r ? '✅ Conectado' : '❌ Error'))\"",
+    "cloud-sql:create": "gcloud sql instances create pando-mysql --database-version=MYSQL_8_0 --tier=db-f1-micro --region=us-central1",
+    "cloud-sql:setup": "gcloud sql databases create pando_db --instance=pando-mysql && gcloud sql users set-password root --host=% --instance=pando-mysql --password=YOUR_PASSWORD",
+    "cloud-sql:connect": "gcloud sql connect pando-mysql --user=root --quiet"
   },
   "dependencies": {
     "express": "^4.18.2",
