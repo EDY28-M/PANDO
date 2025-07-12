@@ -38,7 +38,25 @@ He actualizado todos los archivos de configuración para usar tu nuevo proyecto:
 
 ## 🔧 Pasos para Completar la Configuración
 
-### 1. Ejecutar Script de Configuración
+### 1. URGENTE: Solucionar Artifact Registry
+
+El error que estás viendo indica problemas de permisos con Artifact Registry. Ejecuta este script primero:
+
+```bash
+# Hacer ejecutable el script
+chmod +x fix-artifact-registry.sh
+
+# Ejecutar solución específica para Artifact Registry
+./fix-artifact-registry.sh
+```
+
+Este script:
+- Crea el repositorio de Artifact Registry si no existe
+- Configura todos los permisos necesarios
+- Otorga permisos al service account y usuario
+- Prueba la configuración
+
+### 2. Ejecutar Script de Configuración General
 
 ```bash
 # Hacer ejecutable el script
@@ -55,7 +73,7 @@ Este script:
 - Verifica/crea el repositorio de contenedores
 - Opcionalmente crea Cloud SQL
 
-### 2. Configurar Secretos de Google Cloud
+### 3. Configurar Secretos de Google Cloud
 
 ```bash
 # Crear secretos necesarios
@@ -65,7 +83,7 @@ echo "tu-contraseña-app-gmail" | gcloud secrets create gmail-pass --data-file=-
 echo "tu-session-secret-seguro" | gcloud secrets create session-secret --data-file=-
 ```
 
-### 3. Actualizar GitHub Secrets
+### 4. Actualizar GitHub Secrets
 
 Ve a tu repositorio GitHub → Settings → Secrets and variables → Actions:
 
@@ -82,7 +100,7 @@ gcloud iam service-accounts keys create key.json \
 cat key.json
 ```
 
-### 4. Configurar Cloud SQL (si no existe)
+### 5. Configurar Cloud SQL (si no existe)
 
 ```bash
 # Crear instancia
@@ -156,6 +174,54 @@ gcloud logs tail "resource.type=cloud_run_revision AND resource.labels.service_n
 ```
 
 ## 🔍 Troubleshooting
+
+### Problema Actual: Permisos de Artifact Registry
+
+**Error específico:**
+```
+denied: Permission "artifactregistry.repositories.uploadArtifacts" denied on resource "projects/luminous-style-465017-v6/locations/europe-west1/repositories/cloud-run-source-deploy" (or it may not exist)
+```
+
+**Soluciones:**
+
+1. **Ejecutar el script de solución:**
+   ```bash
+   ./fix-artifact-registry.sh
+   ```
+
+2. **Verificar manualmente el repositorio:**
+   ```bash
+   # Listar repositorios existentes
+   gcloud artifacts repositories list --location=europe-west1
+   
+   # Si no existe, crearlo
+   gcloud artifacts repositories create cloud-run-source-deploy \
+     --repository-format=docker \
+     --location=europe-west1 \
+     --description="Repository for PANDO Cloud Run deployments"
+   ```
+
+3. **Configurar permisos manualmente:**
+   ```bash
+   # Para tu usuario
+   gcloud projects add-iam-policy-binding luminous-style-465017-v6 \
+     --member="user:$(gcloud auth list --filter=status:ACTIVE --format='value(account)' | head -n1)" \
+     --role="roles/artifactregistry.writer"
+   
+   # Para el service account
+   gcloud projects add-iam-policy-binding luminous-style-465017-v6 \
+     --member="serviceAccount:565241049736-compute@developer.gserviceaccount.com" \
+     --role="roles/artifactregistry.writer"
+   ```
+
+4. **Reconfigurar Docker:**
+   ```bash
+   gcloud auth configure-docker europe-west1-docker.pkg.dev
+   ```
+
+5. **Actualizar credenciales de GitHub:**
+   - Generar nueva clave del service account
+   - Actualizar `GCP_SA_KEY` en GitHub Secrets
 
 ### Error de Permisos
 ```bash
