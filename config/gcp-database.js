@@ -19,7 +19,8 @@ const contactsFile = path.join(backupDir, 'contacts.json');
 // Función para determinar la configuración de conexión según el entorno
 function getDbConfig() {
     const isProduction = process.env.NODE_ENV === 'production';
-    const isGoogleCloud = process.env.GAE_ENV; // Solo usar socket en App Engine
+    const isCloudRun = process.env.K_SERVICE || process.env.K_REVISION; // Detectar Cloud Run
+    const isAppEngine = process.env.GAE_ENV; // Detectar App Engine
     
     // Configuración base
     const baseConfig = {
@@ -29,11 +30,28 @@ function getDbConfig() {
         charset: 'utf8mb4',
         connectTimeout: 60000,
         connectionLimit: 10,
-        queueLimit: 0
+        queueLimit: 0,
+        waitForConnections: true,
+        enableKeepAlive: true,
+        keepAliveInitialDelay: 0
     };
 
+    // Si estamos en Cloud Run y tenemos configuración de socket
+    if (isCloudRun && process.env.CLOUD_SQL_CONNECTION_NAME) {
+        console.log('🌐 Detectado entorno Cloud Run');
+        
+        // Intentar primero con Unix Socket
+        if (!process.env.DISABLE_CLOUD_SQL_SOCKET) {
+            console.log('🔌 Intentando conexión Unix Socket para Cloud SQL');
+            return {
+                ...baseConfig,
+                socketPath: `/cloudsql/${process.env.CLOUD_SQL_CONNECTION_NAME}`,
+            };
+        }
+    }
+    
     // Si estamos en App Engine, usar socket
-    if (isGoogleCloud && process.env.CLOUD_SQL_CONNECTION_NAME) {
+    if (isAppEngine && process.env.CLOUD_SQL_CONNECTION_NAME) {
         console.log('🌐 Usando conexión Unix Socket para Cloud SQL (App Engine)');
         return {
             ...baseConfig,
@@ -41,18 +59,18 @@ function getDbConfig() {
         };
     }
     
-    // Si tenemos Cloud SQL configurado, usar IP pública
-    if (process.env.CLOUD_SQL_PUBLIC_IP || process.env.DB_HOST) {
+    // Si tenemos Cloud SQL configurado con IP pública (para Cloud Run o desarrollo)
+    if (process.env.CLOUD_SQL_PUBLIC_IP || (isProduction && process.env.DB_HOST)) {
         console.log('🌐 Usando conexión TCP para Cloud SQL (IP pública)');
         return {
             ...baseConfig,
             host: process.env.CLOUD_SQL_PUBLIC_IP || process.env.DB_HOST,
             port: parseInt(process.env.DB_PORT || '3306'),
-            ssl: {
+            ssl: isProduction ? {
                 rejectUnauthorized: false,
                 // Deshabilitar SNI para evitar el warning con IPs
                 servername: undefined
-            }
+            } : false
         };
     }
     
@@ -67,35 +85,71 @@ function getDbConfig() {
 
 // Crear pool de conexiones
 const dbConfig = getDbConfig();
-const pool = mysql.createPool(dbConfig);
+let pool = mysql.createPool(dbConfig);
 
 // Variable para verificar si la base de datos está disponible
 let databaseAvailable = false;
 
-// Función para probar la conexión
-async function testConnection() {
-    try {
-        const connection = await pool.getConnection();
-        await connection.ping();
-        console.log('✅ Conexión exitosa a la base de datos');
-        connection.release();
-        databaseAvailable = true;
-        return true;
-    } catch (error) {
-        console.error('❌ Error al conectar con la base de datos:', error.message);
-        
-        // Mensajes de ayuda específicos según el error
-        if (error.code === 'ENOTFOUND') {
-            console.log('💡 Verifica que el host de la base de datos sea correcto');
-        } else if (error.code === 'ER_ACCESS_DENIED_ERROR') {
-            console.log('💡 Verifica las credenciales de usuario y contraseña');
-        } else if (error.code === 'ECONNREFUSED') {
-            console.log('💡 Verifica que la base de datos esté ejecutándose y accesible');
+// Función para probar la conexión con reintentos
+async function testConnection(retries = 3) {
+    for (let i = 0; i < retries; i++) {
+        try {
+            const connection = await pool.getConnection();
+            await connection.ping();
+            console.log('✅ Conexión exitosa a la base de datos');
+            connection.release();
+            databaseAvailable = true;
+            return true;
+        } catch (error) {
+            console.error(`❌ Intento ${i + 1}/${retries} - Error al conectar:`, error.message);
+            
+            // Si es Cloud Run y falla el socket, intentar con IP pública
+            if ((process.env.K_SERVICE || process.env.K_REVISION) && 
+                error.code === 'ENOENT' && 
+                process.env.CLOUD_SQL_PUBLIC_IP && 
+                i === 0) {
+                console.log('🔄 Cambiando a conexión TCP con IP pública...');
+                
+                // Recrear el pool con configuración TCP
+                const tcpConfig = {
+                    ...dbConfig,
+                    host: process.env.CLOUD_SQL_PUBLIC_IP,
+                    port: parseInt(process.env.DB_PORT || '3306'),
+                    ssl: {
+                        rejectUnauthorized: false,
+                        servername: undefined
+                    }
+                };
+                delete tcpConfig.socketPath;
+                
+                // Cerrar el pool anterior
+                await pool.end();
+                
+                // Crear nuevo pool con TCP
+                pool = mysql.createPool(tcpConfig);
+                continue;
+            }
+            
+            // Mensajes de ayuda específicos según el error
+            if (error.code === 'ENOTFOUND') {
+                console.log('💡 Verifica que el host de la base de datos sea correcto');
+            } else if (error.code === 'ER_ACCESS_DENIED_ERROR') {
+                console.log('💡 Verifica las credenciales de usuario y contraseña');
+            } else if (error.code === 'ECONNREFUSED') {
+                console.log('💡 Verifica que la base de datos esté ejecutándose y accesible');
+            } else if (error.code === 'ENOENT') {
+                console.log('💡 Socket Unix no encontrado. Verifica la configuración de Cloud SQL');
+            }
+            
+            if (i < retries - 1) {
+                console.log(`⏳ Esperando ${(i + 1) * 2} segundos antes de reintentar...`);
+                await new Promise(resolve => setTimeout(resolve, (i + 1) * 2000));
+            }
         }
-        
-        databaseAvailable = false;
-        return false;
     }
+    
+    databaseAvailable = false;
+    return false;
 }
 
 // Función para crear la base de datos si no existe

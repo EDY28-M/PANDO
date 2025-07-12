@@ -11,7 +11,7 @@ spec:
   template:
     metadata:
       annotations:
-        run.googleapis.com/cloudsql-instances: luminous-style-465017-v6:europe-west1:pando-mysql
+        run.googleapis.com/cloudsql-instances: luminous-style-465017-v6:us-central1:pando-mysql
         run.googleapis.com/execution-environment: gen2
         run.googleapis.com/cpu-throttling: "true"
         autoscaling.knative.dev/minScale: "0"
@@ -22,7 +22,7 @@ spec:
     spec:
       containerConcurrency: 80
       timeoutSeconds: 300
-      serviceAccountName: 565241049736-compute@developer.gserviceaccount.com
+      serviceAccountName: p565241049736-mu9vt6@gcp-sa-cloud-sql.iam.gserviceaccount.com
       containers:
       - image: europe-west1-docker.pkg.dev/luminous-style-465017-v6/cloud-run-source-deploy/pando/pando:latest
         ports:
@@ -36,7 +36,13 @@ spec:
         - name: GOOGLE_CLOUD_PROJECT
           value: "luminous-style-465017-v6"
         - name: CLOUD_SQL_CONNECTION_NAME
-          value: "luminous-style-465017-v6:europe-west1:pando-mysql"
+          value: "luminous-style-465017-v6:us-central1:pando-mysql"
+        - name: CLOUD_SQL_PUBLIC_IP
+          value: "34.28.91.171"
+        - name: DB_HOST
+          value: "34.28.91.171"
+        - name: DB_PORT
+          value: "3306"
         - name: DB_NAME
           value: "pando_db"
         - name: DB_USER
@@ -67,6 +73,10 @@ spec:
           value: "lwpdevelopers.online"
         - name: FORCE_HTTPS
           value: "true"
+        - name: K_SERVICE
+          value: "pando"
+        - name: K_REVISION
+          value: "pando"
         resources:
           limits:
             cpu: "1"

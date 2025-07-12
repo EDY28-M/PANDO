@@ -98,14 +98,24 @@ read -r response
 if [[ "$response" == "y" ]]; then
     echo "Aplicando configuración..."
     
-    # Aplicar el archivo cloudrun.yaml
-    gcloud run services replace cloudrun.yaml --region=$REGION --project=$PROJECT_ID
+    # Obtener el directorio del script
+    SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+    CLOUDRUN_YAML="$SCRIPT_DIR/../cloudrun.yaml"
     
-    echo -e "${GREEN}✅ Configuración aplicada${NC}"
-    
-    # Obtener URL del servicio
-    SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --region=$REGION --project=$PROJECT_ID --format="value(status.url)")
-    echo -e "\n${GREEN}URL del servicio: $SERVICE_URL${NC}"
+    # Verificar que el archivo existe
+    if [ -f "$CLOUDRUN_YAML" ]; then
+        # Aplicar el archivo cloudrun.yaml
+        gcloud run services replace "$CLOUDRUN_YAML" --region=$REGION --project=$PROJECT_ID
+        
+        echo -e "${GREEN}✅ Configuración aplicada${NC}"
+        
+        # Obtener URL del servicio
+        SERVICE_URL=$(gcloud run services describe $SERVICE_NAME --region=$REGION --project=$PROJECT_ID --format="value(status.url)")
+        echo -e "\n${GREEN}URL del servicio: $SERVICE_URL${NC}"
+    else
+        echo -e "${RED}❌ No se encontró el archivo cloudrun.yaml${NC}"
+        echo "Ruta esperada: $CLOUDRUN_YAML"
+    fi
 else
     echo "Actualización cancelada."
 fi
