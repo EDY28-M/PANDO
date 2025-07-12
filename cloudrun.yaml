@@ -2,7 +2,7 @@
 apiVersion: serving.knative.dev/v1
 kind: Service
 metadata:
-  name: pando-frontend
+  name: pando
   annotations:
     run.googleapis.com/ingress: all
     run.googleapis.com/execution-environment: gen2
@@ -11,20 +11,20 @@ spec:
   template:
     metadata:
       annotations:
-        run.googleapis.com/cloudsql-instances: ascendant-altar-457900-v4:europe-west1:pando-mysql
+        run.googleapis.com/cloudsql-instances: luminous-style-465017-v6:europe-west1:pando-mysql
         run.googleapis.com/execution-environment: gen2
         run.googleapis.com/cpu-throttling: "true"
         autoscaling.knative.dev/minScale: "0"
         autoscaling.knative.dev/maxScale: "10"
         run.googleapis.com/cpu: "1"
-        run.googleapis.com/memory: "1Gi"
+        run.googleapis.com/memory: "512Mi"
         run.googleapis.com/timeout: "300"
     spec:
       containerConcurrency: 80
       timeoutSeconds: 300
-      serviceAccountName: ascendant-altar-457900-v4-compute@developer.gserviceaccount.com
+      serviceAccountName: 565241049736-compute@developer.gserviceaccount.com
       containers:
-      - image: gcr.io/ascendant-altar-457900-v4/pando-frontend:latest
+      - image: europe-west1-docker.pkg.dev/luminous-style-465017-v6/cloud-run-source-deploy/pando/pando:latest
         ports:
         - name: http1
           containerPort: 8080
@@ -34,9 +34,9 @@ spec:
         - name: PORT
           value: "8080"
         - name: GOOGLE_CLOUD_PROJECT
-          value: "ascendant-altar-457900-v4"
+          value: "luminous-style-465017-v6"
         - name: CLOUD_SQL_CONNECTION_NAME
-          value: "ascendant-altar-457900-v4:europe-west1:pando-mysql"
+          value: "luminous-style-465017-v6:europe-west1:pando-mysql"
         - name: DB_NAME
           value: "pando_db"
         - name: DB_USER
@@ -62,7 +62,7 @@ spec:
               name: session-secret
               key: latest
         - name: ALLOWED_ORIGINS
-          value: "https://pando-frontend-483569217524.europe-west1.run.app"
+          value: "https://pando-565241049736.europe-west1.run.app"
         - name: CUSTOM_DOMAIN
           value: "lwpdevelopers.online"
         - name: FORCE_HTTPS
@@ -70,7 +70,7 @@ spec:
         resources:
           limits:
             cpu: "1"
-            memory: "1Gi"
+            memory: "512Mi"
         livenessProbe:
           httpGet:
             path: /health

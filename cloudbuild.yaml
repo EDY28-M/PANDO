@@ -1,4 +1,4 @@
-# Cloud Build configuration for automatic deployment with Google Cloud SQL
+# Cloud Build configuration for automatic deployment with Google Cloud Run
 # This file enables automatic deployment when code is pushed to repository
 
 steps:
@@ -25,18 +25,55 @@ steps:
       - 'NODE_ENV=production'
       - 'GOOGLE_CLOUD_PROJECT=$PROJECT_ID'
     
-  # Step 4: Deploy to App Engine
+  # Step 4: Build Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'build',
+      '-t', 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pando/pando:$COMMIT_SHA',
+      '-t', 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pando/pando:latest',
+      '.'
+    ]
+    
+  # Step 5: Push Docker image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pando/pando:$COMMIT_SHA'
+    ]
+    
+  - name: 'gcr.io/cloud-builders/docker'
+    args: [
+      'push',
+      'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pando/pando:latest'
+    ]
+    
+  # Step 6: Deploy to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['app', 'deploy', 'app.yaml', '--quiet']
-    dir: '.'
+    args: [
+      'run', 'deploy', 'pando',
+      '--image', 'europe-west1-docker.pkg.dev/$PROJECT_ID/cloud-run-source-deploy/pando/pando:$COMMIT_SHA',
+      '--region', 'europe-west1',
+      '--platform', 'managed',
+      '--allow-unauthenticated',
+      '--service-account', '565241049736-compute@developer.gserviceaccount.com',
+      '--set-env-vars', 'NODE_ENV=production,GOOGLE_CLOUD_PROJECT=$PROJECT_ID',
+      '--set-cloudsql-instances', '$PROJECT_ID:europe-west1:pando-mysql',
+      '--memory', '512Mi',
+      '--cpu', '1000m',
+      '--port', '8080',
+      '--timeout', '300',
+      '--concurrency', '80',
+      '--min-instances', '0',
+      '--max-instances', '10'
+    ]
 
 # Timeout for the entire build (20 minutes)
 timeout: '1200s'
 
 # Substitutions for dynamic values
 substitutions:
-  _SERVICE_NAME: 'default'
-  _REGION: 'us-central1'
+  _SERVICE_NAME: 'pando'
+  _REGION: 'europe-west1'
 
 # Options
 options:
@@ -44,4 +81,4 @@ options:
   dynamic_substitutions: true
 
 # Build triggers can be configured in Google Cloud Console:
-# https://console.cloud.google.com/cloud-build/triggers 
+# https://console.cloud.google.com/cloud-build/triggers

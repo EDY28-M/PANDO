@@ -7,8 +7,8 @@ on:
     branches: [ main, master ]
 
 env:
-  PROJECT_ID: ascendant-altar-457900-v4
-  SERVICE: pando-fronted  # ← Corregido: usar nombre existente
+  PROJECT_ID: luminous-style-465017-v6
+  SERVICE: pando  # ← Actualizado: usar nombre correcto del servicio
   REGION: europe-west1    # ← Corregido: usar región existente
   REPOSITORY: cloud-run-source-deploy  # ← Corregido: usar repositorio existente
 
@@ -61,11 +61,10 @@ jobs:
         service: ${{ env.SERVICE }}
         region: ${{ env.REGION }}
         image: europe-west1-docker.pkg.dev/${{ env.PROJECT_ID }}/${{ env.REPOSITORY }}/pando/${{ env.SERVICE }}:${{ steps.get-sha.outputs.GIT_SHA }}
-        service_account: 483569217524-compute@developer.gserviceaccount.com
         env_vars: |
           NODE_ENV=production
           GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }}
-          CLOUD_SQL_CONNECTION_NAME=${{ env.PROJECT_ID }}:us-central1:pando-mysql
+          CLOUD_SQL_CONNECTION_NAME=${{ env.PROJECT_ID }}:europe-west1:pando-mysql
           DB_NAME=pando_db
           DB_USER=root
         secrets: |
@@ -83,7 +82,8 @@ jobs:
           --timeout=300
           --concurrency=80
           --allow-unauthenticated
-          --set-cloudsql-instances=${{ env.PROJECT_ID }}:us-central1:pando-mysql
+          --service-account=565241049736-compute@developer.gserviceaccount.com
+          --set-cloudsql-instances=${{ env.PROJECT_ID }}:europe-west1:pando-mysql
 
     - name: Show Output
       run: echo ${{ steps.deploy.outputs.url }}
