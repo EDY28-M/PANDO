@@ -20,7 +20,7 @@ NODE_ENV=development
 PORT=3000
 
 # Configuración de seguridad
-SESSION_SECRET=kera-ai-secret-key-2024
+SESSION_SECRET=kera-ai-secret-key-2024 
 
 # Configuración de rate limiting
 MAX_EMAILS_PER_HOUR=50
